@@ -37,16 +37,139 @@
 <body>
     <div class="container">
         
-        <div class="card">
+       <div class="row">
+
+        <div class="card col">
             <div class="card-body">
-                <h4 class="card-title logo-font">Find A Friend</h4>
-                <p class="card-text">Text</p>
+                <h4 class="card-title logo-font primary center ">Find A Friend - Survey</h4>
+                
+              
+                <form id="survey">
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2 col-form-label">Your Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name">
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="url" class="col-sm-2 col-form-label">Your Photo</label>
+                        <div class="col">
+                            <input type="url" class="form-control" id="url" name="url" placeholder="Ex: (https://domain.com/photo-of-you.jpg)">
+                        </div>
+                    </div>
+                    <br>
+                    <p class="card-text text-center">Read the following statements. Then select a number between 1 and 5 to indicate
+                        how much you agree (5) or disagree (1)</p>
+                      <div id="questions" class="form-group row">
+
+                      </div>
+                   <div id="error" class="alert alert-danger" role="alert" style="display:none;">
+
+                   </div>
+                    <div class="form-group row float-right">
+                        <div class="">
+                            <button id="submit" class="btn btn-danger">Find Your Friend</button>
+                        </div>
+                    </div>
+                </form>
             </div>
+        </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        var questions = []
+    $(document).ready(function(){
+        $.get({
+            url: "api/questions"
+            
+        }).then(function(data){
+            console.log(data)
+            if(data.length){
+            questions = data;
+            startBuildingQuestions();
+            return;
+            }
+            error("Questions Not Loading!")
+        })
+        $('#submit').on("click",function(event){
+            $("#error").hide();
+            event.preventDefault();
+            var formdata = $("#survey").serializeArray()
+            console.log(formdata)
+            if(formdata.length < 12){
+                error("You must answer all the questions!");
+            }else{
+            $.post({
+                url: "/api/friends",
+                data: formdata
+            }).then(function(data){
+                 console.log(data)
+
+
+            })
+        }
+
+        })
+
+        function error(message){
+            $("#error").text(message).show();
+            
+        }
+       function startBuildingQuestions(){
+          var questionCount = questions.length;
+          var ol = $("<ol>");
+          for(var i=0;i < questionCount;i++){
+              var question = makeQuestion(i)
+                
+               
+                 var formset = $("<fieldset>")
+                     $(formset).addClass("form-group")
+              for(var j=0;j<5;j++){
+                  answer = makeAnswer(i,j)
+                 $(formset).append(answer)
+                    
+              }
+            $(question).append(formset)
+              
+              $(ol).addClass("list-group d-flex col").append(question);
+          }
+
+         $('#questions').append(ol);
+
+
+    }
+})
+
+    function makeQuestion(number){
+        var quest = questions[number]
+        
+        var li = $("<li>");
+        $(li).addClass("list-group-item text-white bg-primary").append($("<h5>").text((number + 1).toString() + ". " + quest));
+        return li;
+    }
+    function makeAnswer(count, number){
+        number = number + 1;
+        var div = $("<div>");
+            var input = $("<input>");
+            var label = $("<label>");
+                $(div).addClass("form-check form-check-inline float-left");
+                $(input).addClass("form-check-input")
+                .attr("type","radio")
+                .attr("name","radio_" + count)
+                .attr("id","radio_"+ count + "_" + number)
+                .val(number)
+                $(label).addClass("form-check-label")
+                .attr("for","radio_"+ count + "_" + number)
+                .text(number);
+                $(div).append(input).append(label);
+                return div
+
+    }
+    </script>
 </body>
 
 </html>

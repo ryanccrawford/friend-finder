@@ -8,17 +8,22 @@
 
  *  
  * */
-var friendsData = require("../data/friendsData");
+var friendsData = require("../data/friends");
 var questions = require("../data/questions");
 
 module.exports = function (app) {
 
     app.get("/api/friends", function (req, res) {
-        res.json(allfriends);
+        console.log(friendsData)
+        res.json(friendsData);
     });
-
+    app.get("/api/questions", function (req, res) {
+        console.log(questions)
+        res.json(questions);
+    });
     app.post("/api/friends", function (req, res) {
-        if (tableData.length < 5) {
+       var answers = req.body
+        if (answers.length < 12) {
             tableData.push(req.body);
             res.json(true);
         } else {
