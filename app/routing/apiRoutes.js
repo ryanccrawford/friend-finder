@@ -21,6 +21,9 @@ module.exports = function (app) {
         console.log(questions)
         res.json(questions);
     });
+     app.get("/api/showallfriends", function (req, res) {
+         res.json(friendsData);
+    });
     app.post("/api/friends", function (req, res) {
         var answers = req.body
         console.log(answers)
