@@ -77,11 +77,31 @@
         </div>
         </div>
     </div>
+    <div class="modal fade" id="friendMatch" tabindex="-1" role="dialog" aria-labelledby="friendMatchLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="friendMatchLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="friendMatchBody" class="modal-body">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script>
         var questions = []
+        var qcnt = 0;
     $(document).ready(function(){
         $.get({
             url: "api/questions"
@@ -90,6 +110,7 @@
             console.log(data)
             if(data.length){
             questions = data;
+            qcnt = questions.length + 2;
             startBuildingQuestions();
             return;
             }
@@ -100,15 +121,37 @@
             event.preventDefault();
             var formdata = $("#survey").serializeArray()
             console.log(formdata)
-            if(formdata.length < 12){
+            if(formdata.length < qcnt){
                 error("You must answer all the questions!");
             }else{
             $.post({
                 url: "/api/friends",
                 data: formdata
             }).then(function(data){
-                 console.log(data)
+                
+                if(data){
+                    /*
+                        { name: 'Barbi',
+                        photo:
+                        'https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/6/005/064/1bd/3435aa3.jpg',
+                        scores: [ 5, 3, 4, 3, 5, 3, 5, 4, 3, 1 ] }
 
+                    */
+                   var modal = $("#friendMatch")
+                   var modalTitle = $("#friendMatchLabel")
+                   var modalBody = $("#friendMatchBody")
+                   $(modalTitle).text("Your Match")
+                    var img = $("<img>")
+                    var p = $("<p>")
+                    var h3 = $("<h3>")
+                        $(h3).text(data.name)
+                        $(p).text(`You match up very well with ${data.name}.`)
+                        $(img).attr("src",data.photo)
+                        $(modalBody).empty().append(h3).append(img).append(p)
+
+                   $(modalBody).append()
+                  $(modal).modal("show")
+                }
 
             })
         }
@@ -122,7 +165,7 @@
        function startBuildingQuestions(){
           var questionCount = questions.length;
           var ol = $("<ol>");
-          for(var i=0;i < questionCount;i++){
+          for(var i=0;i < qcnt - 2;i++){
               var question = makeQuestion(i)
                 
                
